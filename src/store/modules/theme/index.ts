@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { darkTheme } from 'naive-ui';
-import { localStg } from '@/utils';
+import { sessionStg } from '@/utils';
 import { getNaiveThemeOverrides, initThemeSettings } from './helpers';
 
 type ThemeState = Theme.Setting;
@@ -25,14 +25,14 @@ export const useThemeStore = defineStore('theme-store', {
   actions: {
     /** 重置theme状态 */
     resetThemeStore() {
-      localStg.remove('themeSettings');
+      sessionStg.remove('themeSettings');
       this.$reset();
     },
     /** 缓存主题配置 */
     cacheThemeSettings() {
       const isProd = import.meta.env.PROD;
       if (isProd) {
-        localStg.set('themeSettings', this.$state);
+        sessionStg.set('themeSettings', this.$state);
       }
     },
     /** 设置暗黑模式 */
@@ -42,6 +42,10 @@ export const useThemeStore = defineStore('theme-store', {
     /** 设置自动跟随系统主题 */
     setFollowSystemTheme(visible: boolean) {
       this.followSystemTheme = visible;
+    },
+    /** 设置自动跟随系统主题 */
+    setIsCustomizeDarkModeTransition(isCustomize: boolean) {
+      this.isCustomizeDarkModeTransition = isCustomize;
     },
     /** 自动跟随系统主题 */
     setAutoFollowSystemMode(darkMode: boolean) {
@@ -58,8 +62,12 @@ export const useThemeStore = defineStore('theme-store', {
       this.layout.minWidth = minWidth;
     },
     /** 设置布局模式 */
-    setLayoutMode(mode: EnumType.ThemeLayoutMode) {
+    setLayoutMode(mode: UnionKey.ThemeLayoutMode) {
       this.layout.mode = mode;
+    },
+    /** 设置滚动模式 */
+    setScrollMode(mode: UnionKey.ThemeScrollMode) {
+      this.scrollMode = mode;
     },
     /** 设置侧边栏反转色 */
     setSiderInverted(isInverted: boolean) {
@@ -106,7 +114,7 @@ export const useThemeStore = defineStore('theme-store', {
       }
     },
     /** 设置多页签风格 */
-    setTabMode(mode: EnumType.ThemeTabMode) {
+    setTabMode(mode: UnionKey.ThemeTabMode) {
       this.tab.mode = mode;
     },
     /** 设置多页签缓存 */
@@ -138,27 +146,35 @@ export const useThemeStore = defineStore('theme-store', {
       this.sider.mixChildMenuWidth = width;
     },
     /** 设置水平模式的菜单的位置 */
-    setHorizontalMenuPosition(position: EnumType.ThemeHorizontalMenuPosition) {
+    setHorizontalMenuPosition(position: UnionKey.ThemeHorizontalMenuPosition) {
       this.menu.horizontalPosition = position;
+    },
+    /** 设置底部是否显示 */
+    setFooterVisible(isVisible: boolean) {
+      this.footer.visible = isVisible;
     },
     /** 设置底部是否固定 */
     setFooterIsFixed(isFixed: boolean) {
       this.footer.fixed = isFixed;
     },
+    /** 设置底部是否固定 */
+    setFooterIsRight(right: boolean) {
+      this.footer.right = right;
+    },
     /** 设置底部高度 */
     setFooterHeight(height: number) {
       this.footer.height = height;
     },
-    /** 设置底部是否显示 */
-    setFooterVisible(isVisible: boolean) {
-      this.footer.visible = isVisible;
+    /** 设置底部高度 */
+    setFooterInverted(inverted: boolean) {
+      this.footer.inverted = inverted;
     },
     /** 设置切换页面时是否过渡动画 */
     setPageIsAnimate(animate: boolean) {
       this.page.animate = animate;
     },
     /** 设置页面过渡动画类型 */
-    setPageAnimateMode(mode: EnumType.ThemeAnimateMode) {
+    setPageAnimateMode(mode: UnionKey.ThemeAnimateMode) {
       this.page.animateMode = mode;
     }
   }

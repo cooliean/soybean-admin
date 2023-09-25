@@ -1,6 +1,7 @@
 {
   "darkMode": false,
   "followSystemTheme": true,
+  "isCustomizeDarkModeTransition": false,
   "layout": {
     "minWidth": 900,
     "mode": "vertical",
@@ -23,15 +24,26 @@
       }
     ]
   },
-  "themeColor": "#1890ff",
+  "scrollMode": "content",
+  "scrollModeList": [
+    {
+      "value": "wrapper",
+      "label": "外层滚动"
+    },
+    {
+      "value": "content",
+      "label": "主体滚动"
+    }
+  ],
+  "themeColor": "#646cff",
   "themeColorList": [
     "#1890ff",
     "#409EFF",
-    "#2d8cf0",
     "#007AFF",
     "#5ac8fa",
     "#5856D6",
     "#536dfe",
+    "#646cff",
     "#9c27b0",
     "#AF52DE",
     "#0096c7",
@@ -109,9 +121,11 @@
     ]
   },
   "footer": {
+    "visible": true,
     "fixed": false,
+    "right": true,
     "height": 48,
-    "visible": true
+    "inverted": false
   },
   "page": {
     "animate": true,

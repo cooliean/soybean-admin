@@ -1,34 +1,8 @@
-import { decrypto, encrypto } from '../crypto';
-
-export function setSession(key: string, value: unknown) {
-  const json = encrypto(value);
-  sessionStorage.setItem(key, json);
-}
-
-export function getSession<T>(key: string) {
-  const json = sessionStorage.getItem(key);
-  let data: T | null = null;
-  if (json) {
-    try {
-      data = decrypto(json);
-    } catch {
-      // 防止解析失败
-    }
-  }
-  return data;
-}
-
-export function removeSession(key: string) {
-  window.sessionStorage.removeItem(key);
-}
-
-export function clearSession() {
-  window.sessionStorage.clear();
-}
+import { decrypt, encrypt } from '../crypto';
 
 function createSessionStorage<T extends StorageInterface.Session = StorageInterface.Session>() {
   function set<K extends keyof T>(key: K, value: T[K]) {
-    const json = encrypto(value);
+    const json = encrypt(value);
     sessionStorage.setItem(key as string, json);
   }
   function get<K extends keyof T>(key: K) {
@@ -36,7 +10,7 @@ function createSessionStorage<T extends StorageInterface.Session = StorageInterf
     let data: T[K] | null = null;
     if (json) {
       try {
-        data = decrypto(json);
+        data = decrypt(json);
       } catch {
         // 防止解析失败
       }

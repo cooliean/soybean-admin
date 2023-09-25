@@ -1,9 +1,9 @@
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { useAppStore, useThemeStore } from '@/store';
 
 type LayoutMode = 'vertical' | 'horizontal';
-type LayoutHeaderProps = Record<EnumType.ThemeLayoutMode, App.GlobalHeaderProps>;
+type LayoutHeaderProps = Record<UnionKey.ThemeLayoutMode, App.GlobalHeaderProps>;
 
 export function useBasicLayout() {
   const app = useAppStore();
@@ -62,6 +62,16 @@ export function useBasicLayout() {
     }
     return w;
   });
+
+  watch(
+    isMobile,
+    newValue => {
+      if (newValue) {
+        app.setSiderCollapse(true);
+      }
+    },
+    { immediate: true }
+  );
 
   return {
     mode,

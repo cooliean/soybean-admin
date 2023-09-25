@@ -1,6 +1,6 @@
 <template>
   <div class="h-full">
-    <n-card title="权限切换" class="h-full shadow-sm rounded-16px">
+    <n-card title="权限切换" :bordered="false" class="h-full rounded-8px shadow-sm">
       <div class="pb-12px">
         <n-gradient-text type="primary" :size="20">当前用户的权限：{{ auth.userInfo.userRole }}</n-gradient-text>
       </div>
@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { watch } from 'vue';
 import type { SelectOption } from 'naive-ui';
-import { EnumUserRole } from '@/enum';
+import { userRoleOptions } from '@/constants';
 import { useAppStore, useAuthStore } from '@/store';
 import { usePermission } from '@/composables';
 
@@ -42,18 +42,7 @@ const app = useAppStore();
 const auth = useAuthStore();
 const { hasPermission } = usePermission();
 
-interface RoleList {
-  label: string;
-  value: keyof typeof EnumUserRole;
-}
-
-const roleList: RoleList[] = [
-  { label: EnumUserRole.super, value: 'super' },
-  { label: EnumUserRole.admin, value: 'admin' },
-  { label: EnumUserRole.user, value: 'user' }
-];
-
-const options: SelectOption[] = roleList as unknown as SelectOption[];
+const options: SelectOption[] = userRoleOptions;
 
 watch(
   () => auth.userInfo.userRole,

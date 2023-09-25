@@ -1,31 +1,42 @@
 <template>
-  <n-card title="用户管理" :bordered="false" class="rounded-16px shadow-sm">
-    <n-space class="pb-12px" justify="space-between">
-      <n-space>
-        <n-button type="primary" @click="handleAddTable">
-          <icon-ic-round-plus class="mr-4px text-20px" />
-          新增
-        </n-button>
-        <n-button type="error">
-          <icon-ic-round-delete class="mr-4px text-20px" />
-          删除
-        </n-button>
-        <n-button type="success">
-          <icon-uil:export class="mr-4px text-20px" />
-          导出Excel
-        </n-button>
-      </n-space>
-      <n-space align="center" :size="18">
-        <n-button size="small" type="primary" @click="getTableData">
-          <icon-mdi-refresh class="mr-4px text-16px" :class="{ 'animate-spin': loading }" />
-          刷新表格
-        </n-button>
-        <column-setting v-model:columns="columns" />
-      </n-space>
-    </n-space>
-    <n-data-table :columns="columns" :data="tableData" :loading="loading" :pagination="pagination" />
-    <table-action-modal v-model:visible="visible" :type="modalType" :edit-data="editData" />
-  </n-card>
+  <div class="overflow-hidden">
+    <n-card title="用户管理" :bordered="false" class="h-full rounded-8px shadow-sm">
+      <div class="flex-col h-full">
+        <n-space class="pb-12px" justify="space-between">
+          <n-space>
+            <n-button type="primary" @click="handleAddTable">
+              <icon-ic-round-plus class="mr-4px text-20px" />
+              新增
+            </n-button>
+            <n-button type="error">
+              <icon-ic-round-delete class="mr-4px text-20px" />
+              删除
+            </n-button>
+            <n-button type="success">
+              <icon-uil:export class="mr-4px text-20px" />
+              导出Excel
+            </n-button>
+          </n-space>
+          <n-space align="center" :size="18">
+            <n-button size="small" type="primary" @click="getTableData">
+              <icon-mdi-refresh class="mr-4px text-16px" :class="{ 'animate-spin': loading }" />
+              刷新表格
+            </n-button>
+            <column-setting v-model:columns="columns" />
+          </n-space>
+        </n-space>
+        <n-data-table
+          :columns="columns"
+          :data="tableData"
+          :loading="loading"
+          :pagination="pagination"
+          flex-height
+          class="flex-1-hidden"
+        />
+        <table-action-modal v-model:visible="visible" :type="modalType" :edit-data="editData" />
+      </div>
+    </n-card>
+  </div>
 </template>
 
 <script setup lang="tsx">
@@ -33,12 +44,12 @@ import { reactive, ref } from 'vue';
 import type { Ref } from 'vue';
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui';
 import type { DataTableColumns, PaginationProps } from 'naive-ui';
+import { genderLabels, userStatusLabels } from '@/constants';
 import { fetchUserList } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
-import { genderLabels, userStatusLabels } from '@/constants';
-import TableActionModal from './components/TableActionModal.vue';
-import type { ModalType } from './components/TableActionModal.vue';
-import ColumnSetting from './components/ColumnSetting.vue';
+import TableActionModal from './components/table-action-modal.vue';
+import type { ModalType } from './components/table-action-modal.vue';
+import ColumnSetting from './components/column-setting.vue';
 
 const { loading, startLoading, endLoading } = useLoading(false);
 const { bool: visible, setTrue: openModal } = useBoolean();

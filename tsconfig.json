@@ -9,6 +9,7 @@
     "allowSyntheticDefaultImports": true,
     "jsx": "preserve",
     "moduleResolution": "node",
+    "isolatedModules": true,
     "resolveJsonModule": true,
     "noUnusedLocals": true,
     "strictNullChecks": true,
@@ -17,7 +18,7 @@
       "~/*": ["./*"],
       "@/*": ["./src/*"]
     },
-    "types": ["vite/client", "node", "unplugin-icons/types/vue", "naive-ui/volar", "unplugin-vue-macros/macros-global"]
+    "types": ["vite/client", "node", "unplugin-icons/types/vue", "naive-ui/volar"]
   },
   "exclude": ["node_modules", "dist"]
 }

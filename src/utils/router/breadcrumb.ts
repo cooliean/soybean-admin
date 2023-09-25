@@ -59,15 +59,16 @@ function transformBreadcrumbMenuToBreadcrumb(menu: App.GlobalMenuOption, rootPat
     label: menu.label as string,
     routeName: menu.routeName,
     disabled: menu.routePath === rootPath,
-    hasChildren
+    hasChildren,
+    i18nTitle: menu.i18nTitle
   };
   if (menu.icon) {
     breadcrumb.icon = menu.icon;
   }
   if (hasChildren) {
-    breadcrumb.children = menu.children?.map(item =>
+    breadcrumb.options = menu.children?.map(item =>
       transformBreadcrumbMenuToBreadcrumb(item as App.GlobalMenuOption, rootPath)
-    );
+    ) as NonNullable<App.GlobalBreadcrumb['options']>;
   }
   return breadcrumb;
 }

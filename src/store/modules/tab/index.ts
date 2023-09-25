@@ -1,5 +1,6 @@
 import type { RouteLocationNormalizedLoaded, Router } from 'vue-router';
 import { defineStore } from 'pinia';
+import { useRouteStore } from '@/store';
 import { useRouterPush } from '@/composables';
 import { localStg } from '@/utils';
 import { useThemeStore } from '../theme';
@@ -68,7 +69,11 @@ export const useTabStore = defineStore('tab-store', {
     setActiveTabTitle(title: string) {
       const item = this.tabs.find(tab => tab.fullPath === this.activeTab);
       if (item) {
-        item.meta.title = title;
+        if (item.meta.i18nTitle) {
+          item.meta.i18nTitle = title as I18nType.I18nKey;
+        } else {
+          item.meta.title = title;
+        }
       }
     },
     /**
@@ -115,7 +120,13 @@ export const useTabStore = defineStore('tab-store', {
      * @param fullPath - 路由fullPath
      */
     async removeTab(fullPath: string) {
+      const { reCacheRoute } = useRouteStore();
       const { routerPush } = useRouterPush(false);
+
+      const tabName = this.tabs.find(tab => tab.fullPath === fullPath)?.name as AuthRoute.AllRouteKey | undefined;
+      if (tabName) {
+        await reCacheRoute(tabName);
+      }
 
       const isActive = this.activeTab === fullPath;
       const updateTabs = this.tabs.filter(tab => tab.fullPath !== fullPath);

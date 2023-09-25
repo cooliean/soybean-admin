@@ -14,6 +14,7 @@ import {
   transformRoutePathToRouteName,
   sortRoutes
 } from '@/utils';
+import { useAppStore } from '../app';
 import { useAuthStore } from '../auth';
 import { useTabStore } from '../tab';
 
@@ -107,6 +108,7 @@ export const useRouteStore = defineStore('route-store', {
     },
     /** 初始化动态路由 */
     async initDynamicRoute() {
+      const { resetAuthStore } = useAuthStore();
       const { initHomeTab } = useTabStore();
 
       const { userId } = localStg.get('userInfo') || {};
@@ -118,13 +120,16 @@ export const useRouteStore = defineStore('route-store', {
       const { error, data } = await fetchUserRoutes(userId);
 
       if (!error) {
+        this.handleAuthRoute(sortRoutes(data.routes));
+        // home相关处理需要在最后，否则会出现找不到主页404的情况
         this.routeHomeName = data.home;
         this.handleUpdateRootRedirect(data.home);
-        this.handleAuthRoute(sortRoutes(data.routes));
 
         initHomeTab(data.home, router);
 
         this.isInitAuthRoute = true;
+      } else {
+        resetAuthStore();
       }
     },
     /** 初始化静态路由 */
@@ -147,7 +152,6 @@ export const useRouteStore = defineStore('route-store', {
         await this.initStaticRoute();
       }
     },
-
     /** 从缓存路由中去除某个路由 */
     removeCacheRoute(name: AuthRoute.AllRouteKey) {
       const index = this.cacheRoutes.indexOf(name);
@@ -155,12 +159,29 @@ export const useRouteStore = defineStore('route-store', {
         this.cacheRoutes.splice(index, 1);
       }
     },
-
     /** 添加某个缓存路由 */
     addCacheRoute(name: AuthRoute.AllRouteKey) {
       const index = this.cacheRoutes.indexOf(name);
       if (index === -1) {
         this.cacheRoutes.push(name);
+      }
+    },
+    /**
+     * 重新缓存路由
+     */
+    async reCacheRoute(name: AuthRoute.AllRouteKey) {
+      const { reloadPage } = useAppStore();
+
+      const isCached = this.cacheRoutes.includes(name);
+
+      if (isCached) {
+        this.removeCacheRoute(name);
+      }
+
+      await reloadPage();
+
+      if (isCached) {
+        this.addCacheRoute(name as AuthRoute.AllRouteKey);
       }
     }
   }

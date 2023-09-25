@@ -1,24 +1,3 @@
-/** 枚举的key类型 */
-declare namespace EnumType {
-  /** 布局组件名称 */
-  type LayoutComponentName = keyof typeof import('@/enum').EnumLayoutComponentName;
-
-  /** 布局模式 */
-  type ThemeLayoutMode = keyof typeof import('@/enum').EnumThemeLayoutMode;
-
-  /** 多页签风格 */
-  type ThemeTabMode = keyof typeof import('@/enum').EnumThemeTabMode;
-
-  /** 水平模式的菜单位置 */
-  type ThemeHorizontalMenuPosition = keyof typeof import('@/enum').EnumThemeHorizontalMenuPosition;
-
-  /** 过渡动画 */
-  type ThemeAnimateMode = keyof typeof import('@/enum').EnumThemeAnimateMode;
-
-  /** 登录模块 */
-  type LoginModuleKey = keyof typeof import('@/enum').EnumLoginModule;
-}
-
 /** 请求的相关类型 */
 declare namespace Service {
   /**
@@ -111,8 +90,14 @@ declare namespace Theme {
     darkMode: boolean;
     /** 是否自动跟随系统主题 */
     followSystemTheme: boolean;
+    /** 自定义暗黑动画过渡 */
+    isCustomizeDarkModeTransition: boolean;
     /** 布局样式 */
     layout: Layout;
+    /** 滚动模式 */
+    scrollMode: UnionKey.ThemeScrollMode;
+    /** 滚动模式列表 */
+    scrollModeList: Common.OptionWithKey<UnionKey.ThemeScrollMode>[];
     /** 主题颜色 */
     themeColor: string;
     /** 主题颜色列表 */
@@ -143,13 +128,9 @@ declare namespace Theme {
     /** 最小宽度 */
     minWidth: number;
     /** 布局模式 */
-    mode: EnumType.ThemeLayoutMode;
+    mode: UnionKey.ThemeLayoutMode;
     /** 布局模式列表 */
-    modeList: LayoutModeList[];
-  }
-  interface LayoutModeList {
-    value: EnumType.ThemeLayoutMode;
-    label: import('@/enum').EnumThemeLayoutMode;
+    modeList: Common.OptionWithKey<UnionKey.ThemeLayoutMode>[];
   }
 
   /** 其他主题颜色 */
@@ -188,17 +169,11 @@ declare namespace Theme {
     /** 多页签高度 */
     height: number;
     /** 多页签风格 */
-    mode: EnumType.ThemeTabMode;
+    mode: UnionKey.ThemeTabMode;
     /** 多页签风格列表 */
-    modeList: ThemeTabModeList[];
+    modeList: Common.OptionWithKey<UnionKey.ThemeTabMode>[];
     /** 开启多页签缓存 */
     isCache: boolean;
-  }
-
-  /** 多页签风格列表 */
-  interface ThemeTabModeList {
-    value: EnumType.ThemeTabMode;
-    label: import('@/enum').EnumThemeTabMode;
   }
 
   /** 侧边栏样式 */
@@ -220,24 +195,23 @@ declare namespace Theme {
   /** 菜单样式 */
   interface Menu {
     /** 水平模式的菜单的位置 */
-    horizontalPosition: EnumType.ThemeHorizontalMenuPosition;
+    horizontalPosition: UnionKey.ThemeHorizontalMenuPosition;
     /** 水平模式的菜单的位置列表 */
-    horizontalPositionList: HorizontalMenuPositionList[];
-  }
-  /** 水平模式的菜单的位置列表 */
-  interface HorizontalMenuPositionList {
-    value: EnumType.ThemeHorizontalMenuPosition;
-    label: import('@/enum').EnumThemeHorizontalMenuPosition;
+    horizontalPositionList: Common.OptionWithKey<UnionKey.ThemeHorizontalMenuPosition>[];
   }
 
   /** 底部样式 */
   interface Footer {
-    /** 是否固定底部 */
-    fixed: boolean;
-    /** 底部高度 */
-    height: number;
     /* 底部是否可见 */
     visible: boolean;
+    /** 是否固定底部 */
+    fixed: boolean;
+    /** 底部是否居右(顶部混合菜单模式有效) */
+    right: boolean;
+    /** 底部高度 */
+    height: number;
+    /** 底部反转色 */
+    inverted: boolean;
   }
 
   /** 页面样式 */
@@ -245,14 +219,9 @@ declare namespace Theme {
     /** 页面是否开启动画 */
     animate: boolean;
     /** 动画类型 */
-    animateMode: EnumType.ThemeAnimateMode;
+    animateMode: UnionKey.ThemeAnimateMode;
     /** 动画类型列表 */
-    animateModeList: AnimateModeList[];
-  }
-  /** 动画类型列表 */
-  interface AnimateModeList {
-    value: EnumType.ThemeAnimateMode;
-    label: import('@/enum').EnumThemeAnimateMode;
+    animateModeList: Common.OptionWithKey<UnionKey.ThemeAnimateMode>[];
   }
 }
 
@@ -275,16 +244,19 @@ declare namespace App {
     routePath: string;
     icon?: () => import('vue').VNodeChild;
     children?: GlobalMenuOption[];
+    i18nTitle?: I18nType.I18nKey;
   };
 
   /** 面包屑 */
-  type GlobalBreadcrumb = import('naive-ui').DropdownOption & {
+  type GlobalBreadcrumb = Omit<import('naive-ui').DropdownOption, 'icon'> & {
     key: string;
     label: string;
     disabled: boolean;
     routeName: string;
     hasChildren: boolean;
-    children?: GlobalBreadcrumb[];
+    icon?: import('vue').Component;
+    i18nTitle?: I18nType.I18nKey;
+    options?: (import('naive-ui/es/dropdown/src/interface').DropdownMixedOption & { i18nTitle?: I18nType.I18nKey })[];
   };
 
   /** 多页签Tab的路由 */
@@ -332,19 +304,231 @@ declare namespace App {
 }
 
 declare namespace I18nType {
-  interface Schema {
+  type LangType = 'en' | 'zh-CN' | 'km-KH';
+
+  type Schema = {
     system: {
       title: string;
     };
+    common: {
+      add: string;
+      addSuccess: string;
+      edit: string;
+      editSuccess: string;
+      delete: string;
+      deleteSuccess: string;
+      batchDelete: string;
+      confirm: string;
+      cancel: string;
+      pleaseCheckValue: string;
+      action: string;
+    };
     routes: {
       dashboard: {
-        dashboard: string;
+        _value: string;
         analysis: string;
         workbench: string;
       };
-      about: {
-        about: string;
+      document: {
+        _value: string;
+        vue: string;
+        vite: string;
+        naive: string;
+        project: string;
+        'project-link': string;
+      };
+      component: {
+        _value: string;
+        button: string;
+        card: string;
+        table: string;
+      };
+      plugin: {
+        _value: string;
+        charts: {
+          _value: string;
+          antv: string;
+          echarts: string;
+        };
+        copy: string;
+        editor: {
+          _value: string;
+          markdown: string;
+          quill: string;
+        };
+        icon: string;
+        map: string;
+        print: string;
+        swiper: string;
+        video: string;
+      };
+      'auth-demo': {
+        _value: string;
+        permission: string;
+        super: string;
+      };
+      function: {
+        _value: string;
+        tab: string;
+      };
+      exception: {
+        _value: string;
+        '403': string;
+        '404': string;
+        '500': string;
+      };
+      'multi-menu': {
+        _value: string;
+        first: {
+          _value: string;
+          second: string;
+          'second-new': {
+            _value: string;
+            third: string;
+          };
+        };
+      };
+      management: {
+        _value: string;
+        auth: string;
+        role: string;
+        route: string;
+        user: string;
+      };
+      about: string;
+    };
+    layout: {
+      settingDrawer: {
+        title: string;
+        themeModeTitle: string;
+        darkMode: string;
+        layoutModelTitle: string;
+        systemThemeTitle: string;
+        pageFunctionsTitle: string;
+        pageViewTitle: string;
+        followSystemTheme: string;
+        isCustomizeDarkModeTransition: string;
+        scrollMode: string;
+        scrollModeList: {
+          wrapper: string;
+          content: string;
+        };
+        fixedHeaderAndTab: string;
+        header: {
+          inverted: string;
+          height: string;
+          crumb: {
+            visible: string;
+            icon: string;
+          };
+        };
+        tab: {
+          visible: string;
+          height: string;
+          modeList: {
+            mode: string;
+            chrome: string;
+            button: string;
+          };
+          isCache: string;
+        };
+        sider: {
+          inverted: string;
+          width: string;
+          mixWidth: string;
+        };
+        menu: {
+          horizontalPosition: string;
+          horizontalPositionList: {
+            flexStart: string;
+            center: string;
+            flexEnd: string;
+          };
+        };
+        footer: {
+          inverted: string;
+          visible: string;
+          fixed: string;
+          right: string;
+        };
+        page: {
+          animate: string;
+          animateMode: string;
+          animateModeList: {
+            zoomFade: string;
+            zoomOut: string;
+            fadeSlide: string;
+            fade: string;
+            fadeBottom: string;
+            fadeScale: string;
+          };
+        };
+        systemTheme: {
+          moreColors: string;
+        };
+        themeConfiguration: {
+          title: string;
+          copy: string;
+          reset: string;
+          resetSuccess: string;
+          operateSuccess: string;
+          copySuccess: string;
+          confirmCopy: string;
+        };
       };
     };
-  }
+    page: {
+      login: {
+        common: {
+          userNamePlaceholder: string;
+          phonePlaceholder: string;
+          codePlaceholder: string;
+          passwordPlaceholder: string;
+          confirmPasswordPlaceholder: string;
+          codeLogin: string;
+          confirm: string;
+          back: string;
+          validateSuccess: string;
+          loginSuccess: string;
+          welcomeBack: string;
+        };
+        pwdLogin: {
+          title: string;
+          rememberMe: string;
+          forgetPassword: string;
+          register: string;
+          otherAccountLogin: string;
+          otherLoginMode: string;
+          superAdmin: string;
+          admin: string;
+          user: string;
+        };
+        codeLogin: {
+          title: string;
+          getCode: string;
+          imageCodePlaceholder: string;
+        };
+        register: {
+          title: string;
+          agreement: string;
+          protocol: string;
+          policy: string;
+        };
+        resetPwd: {
+          title: string;
+        };
+        bindWeChat: {
+          title: string;
+        };
+      };
+    };
+  };
+
+  type GetI18nKey<T extends Record<string, unknown>, K extends keyof T = keyof T> = K extends string
+    ? T[K] extends Record<string, unknown>
+      ? `${K}.${GetI18nKey<T[K]>}`
+      : K
+    : never;
+
+  type I18nKey = GetI18nKey<Schema>;
 }
